@@ -129,15 +129,15 @@ h1 {
 
 # ── Pages list ──────────────────────────────────────────────────────────
 PAGES = [
-    "Dashboard",
-    "AI Tutor",
-    "Practice",
-    "Concepts",
-    "Flashcards",
-    "Mock Test",
-    "Analytics",
-    "Study Plan",
-    "Settings",
+    "🏠 Dashboard",
+    "🧠 AI Tutor",
+    "📝 Practice",
+    "📚 Concepts",
+    "🎴 Flashcards",
+    "🏆 Mock Test",
+    "📊 Analytics",
+    "🗺️ Study Plan",
+    "⚙️ Settings",
 ]
 
 
@@ -151,7 +151,7 @@ def init_state():
         "groq_api_key": os.getenv("GROQ_API_KEY", ""),
         "user_name": "",
         "onboarded": False,
-        "current_page": "Dashboard",
+        "current_page": "🏠 Dashboard",
         "page_index": 0,
         "math_score": 400,
         "rw_score": 400,
@@ -247,26 +247,13 @@ def render_sidebar():
         </div>
         """, unsafe_allow_html=True)
 
-        icons = {
-            "Dashboard": "▦",
-            "AI Tutor": "◉",
-            "Practice": "✎",
-            "Concepts": "▤",
-            "Flashcards": "▣",
-            "Mock Test": "⏱",
-            "Analytics": "▧",
-            "Study Plan": "☰",
-            "Settings": "⚙",
-        }
-
         current = st.session_state.current_page
 
         for i, page in enumerate(PAGES):
-            label = f"{icons.get(page, '•')}  {page}"
             is_active = page == current
 
             if st.button(
-                label,
+                page,
                 key=f"nav_{i}",
                 use_container_width=True
             ):
