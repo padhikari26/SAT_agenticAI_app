@@ -5,13 +5,13 @@ from helpers import section_header
 
 
 def render():
-    section_header("Settings", "Manage your profile and data.")
+    section_header("⚙️ Settings", "Manage your profile and data.")
 
-    t1, t2, t3 = st.tabs(["Profile", "Data", "About"])
+    t1, t2, t3 = st.tabs(["👤 Profile", "📊 Data", "ℹ️ About"])
 
     with t1:
-        st.markdown("**User Profile**")
-
+        st.markdown("### User Profile")
+        
         col1, col2 = st.columns(2)
         with col1:
             name = st.text_input(
@@ -21,37 +21,32 @@ def render():
             )
         with col2:
             target = st.number_input(
-                "Target score",
+                "Target Score",
                 value=st.session_state.target_score,
                 min_value=800,
                 max_value=1600,
                 step=10
             )
-
-        if st.button("Save profile", type="primary", use_container_width=True):
+        
+        if st.button("Save Profile", type="primary", use_container_width=True):
             st.session_state.user_name = name
             st.session_state.target_score = target
-            st.success("Profile saved.")
-
+            st.success("✓ Profile saved")
+        
         st.markdown("---")
-
-        st.markdown("**API Configuration**")
+        
+        st.markdown("### API Configuration")
         if st.session_state.groq_api_key:
-            st.markdown(
-                '<div class="status-pill status-ok">● api connected</div>',
-                unsafe_allow_html=True
-            )
-            st.caption("Loaded from environment (.env)")
+            st.success("✓ Groq API is connected")
+            st.caption("API key loaded from environment (.env)")
         else:
-            st.markdown(
-                '<div class="status-pill status-err">● api not configured</div>',
-                unsafe_allow_html=True
-            )
-            st.caption("Add GROQ_API_KEY to your .env file to enable generation features.")
+            st.error("✗ Groq API key not found")
+            st.caption("Add GROQ_API_KEY to your .env file to enable AI features")
 
     with t2:
-        st.markdown("**Your Data**")
+        st.markdown("### Your Data")
         st.markdown(f"""
+**Progress Summary:**
 - Questions solved: **{st.session_state.total_questions}**
 - Correct answers: **{st.session_state.correct_answers}**
 - XP earned: **{st.session_state.xp_points}**
@@ -59,7 +54,7 @@ def render():
 - Streak: **{st.session_state.streak_days}** days
         """)
 
-        if st.button("Export progress (JSON)", use_container_width=True):
+        if st.button("📥 Export Progress (JSON)", use_container_width=True):
             data = {
                 "name": st.session_state.user_name,
                 "math_score": st.session_state.math_score,
@@ -74,48 +69,52 @@ def render():
                 "study_plan": st.session_state.study_plan,
             }
             st.download_button(
-                "Download progress.json",
+                "💾 Download progress.json",
                 data=json.dumps(data, indent=2),
-                file_name="sat_progress.json",
+                file_name="sat_genius_progress.json",
                 mime="application/json",
             )
 
         st.markdown("---")
-        st.markdown("**Reset**")
-        if st.button("Reset progress", type="secondary", use_container_width=True):
+        st.markdown("### Reset")
+        if st.button("🗑️ Reset Progress", type="secondary", use_container_width=True):
             st.session_state["confirm_reset"] = True
-
+        
         if st.session_state.get("confirm_reset"):
             st.warning("This will clear all stats, chats, and history.")
             cc1, cc2 = st.columns(2)
             with cc1:
-                if st.button("Confirm reset", type="primary", use_container_width=True):
+                if st.button("✓ Confirm Reset", type="primary", use_container_width=True):
                     keep = {"groq_api_key", "user_name", "onboarded",
                             "current_page", "model_choice"}
                     for k in list(st.session_state.keys()):
                         if k not in keep:
                             del st.session_state[k]
-                    st.success("Progress reset.")
+                    st.success("✓ Progress reset")
                     st.rerun()
             with cc2:
-                if st.button("Cancel", use_container_width=True):
+                if st.button("✗ Cancel", use_container_width=True):
                     st.session_state["confirm_reset"] = False
                     st.rerun()
 
     with t3:
-        st.markdown("**About**")
+        st.markdown("### About SAT Genius")
         st.markdown("""
-A digital SAT preparation tool with adaptive practice, a concept library, flashcards,
-mock tests, and progress analytics.
+**SAT Genius** is an AI-powered SAT prep platform demonstrating advanced AI engineering:
 
-**Built with**
-Python · Streamlit · Groq API · pandas
+**Architecture:**
+- Multi-agent orchestration (8 specialized agents)
+- Agentic RAG over official 2024+ SAT syllabus
+- Adaptive difficulty calibration
+- Memory-aware conversational AI
 
-**Features**
-- Personalized tutor with chat history
+**Technology:**
+Python · Streamlit · Groq API · Llama 3 · RAG
+
+**Features:**
+- Personalized AI tutor with chat history
 - Adaptive practice with real-time difficulty adjustment
-- Concept library covering the official 2024+ syllabus
-- Flashcard decks for any topic
-- Timed mock tests with per-question review
-- Performance analytics and a study planner
+- Smart analytics and performance tracking
+- Question generation, flashcards, and study plans
         """)
+

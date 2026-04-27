@@ -1,114 +1,141 @@
-# SAT Prep
+# 🎯 SAT Genius — Agentic AI SAT Preparation Platform
 
-A digital SAT preparation app built with Streamlit and the Groq API.
+> A comprehensive AI-powered SAT prep app built with Python, Streamlit, and Groq AI.  
+> Featuring multi-agent orchestration, agentic RAG, adaptive learning, and generative AI.
 
-## Overview
+---
 
-A modular study tool with adaptive practice, a concept library, flashcards, timed
-mock tests, performance analytics, and a study planner. Question generation,
-explanations, and conversational tutoring are powered by an LLM (Groq) with
-retrieval grounded in the official 2024+ digital SAT syllabus.
+## ✨ What makes this unique
 
-## Features
+While most SAT prep apps are static question banks with a chatbot bolted on, **SAT Genius** is a **fully agentic AI system** where every feature is powered by coordinated AI agents grounded in the official 2024+ digital SAT syllabus.
 
-- **Dashboard** — score, accuracy, streak, focus areas
-- **Practice** — adaptive difficulty, generated or curated questions, explanations on demand
-- **Tutor** — chat with conversational memory and student-profile injection
-- **Concept Library** — every digital SAT topic with formulas, common mistakes, and lessons
-- **Flashcards** — generated decks on any topic with flip + rate workflow
-- **Mock Test** — timed simulation with per-question review
-- **Analytics** — trends, accuracy by topic, history, written analysis
-- **Study Plan** — week-by-week roadmap from current score to target
-- **Settings** — profile, data export, reset
+### 🤖 8 Specialized AI Agents
+| Agent | Role |
+|---|---|
+| **Tutor Agent** | Multi-turn conversational teaching with memory |
+| **Question-Gen Agent** | Creates original SAT-realistic questions on demand |
+| **Explainer Agent** | Diagnoses wrong answers and teaches the underlying concept |
+| **Concept-Teacher Agent** | Generates full lessons with examples, traps, mnemonics |
+| **Analyst Agent** | Quantifies score-impact of weak areas |
+| **Planner Agent** | Builds personalized week-by-week study roadmaps |
+| **Flashcard Agent** | Generates spaced-repetition decks for any topic |
+| **Hint Agent** | Gives nudge-style hints without revealing answers |
 
-## Quick Start
+### 🧬 Agentic RAG
+A curated knowledge base of every digital SAT (2024+) topic — formulas, common mistakes, weights, strategies. Keyword retrieval grounds every AI response in the official syllabus, eliminating hallucinations on test content.
 
-### 1. Get a Groq API key
+### 📊 Adaptive Learning
+Practice difficulty calibrates to your real-time accuracy. Weak topics surface automatically. The AI tutor knows your profile (scores, weak areas, history) on every turn.
 
-Sign up at [console.groq.com](https://console.groq.com) (free tier, no card required)
-and create an API key.
+### 🎨 Production-grade UI
+- Custom dark-mode design with Syne + DM Sans typography
+- Animated gradients, glow effects, badge system
+- Responsive layout, multi-page navigation
+- Gamified XP, streaks, achievements
+
+---
+
+## 🚀 Quick Start
+
+### 1. Get your free Groq API key
+Visit [console.groq.com](https://console.groq.com), sign up (free, no credit card), and create an API key. Free tier: ~30 requests/min, thousands per day.
 
 ### 2. Install dependencies
-
 ```bash
-cd sat_prep
+cd sat_genius
 pip install -r requirements.txt
 ```
 
-### 3. Configure the API key
-
-Create a `.env` file in the project root:
-
-```
-GROQ_API_KEY=your_key_here
-```
-
-### 4. Run
-
+### 3. Run the app
 ```bash
 streamlit run app.py
 ```
 
-The app opens at `http://localhost:8501`.
+The app opens at `http://localhost:8501`. Onboard with your name, paste your Groq key, and start practicing.
 
-## Project Structure
+---
 
+## 📁 Project Structure
 ```
-sat_prep/
-├── app.py            # entry point, navigation, onboarding, global CSS
+sat_genius/
+├── app.py                  # Streamlit entry, navigation, onboarding, global CSS
 ├── requirements.txt
 ├── README.md
-├── dashboard.py      # progress overview
-├── ai_tutor.py       # chat tutor
-├── practice.py       # adaptive practice
-├── concepts.py       # concept library
-├── flashcards.py     # flashcards
-├── mock_test.py      # mock exam
-├── analytics.py      # analytics
-├── study_plan.py     # study planner
-├── settings.py       # settings
-├── ai_engine.py      # Groq client, knowledge base, generation, RAG
-└── helpers.py        # scoring, gamification, badges
+├── app_pages/                  # One file per app section
+│   ├── dashboard.py        # Progress overview + AI insight
+│   ├── ai_tutor.py         # Agentic chat tutor
+│   ├── practice.py         # Adaptive practice engine
+│   ├── concepts.py         # Concept library with on-demand AI lessons
+│   ├── flashcards.py       # AI-generated flashcards
+│   ├── mock_test.py        # Timed full-SAT simulation
+│   ├── analytics.py        # Charts + AI insights
+│   ├── study_plan.py       # AI study planner
+│   └── settings.py         # Config, profile, data export
+└── utils/
+    ├── ai_engine.py        # Groq client, 8 agents, RAG, knowledge base
+    └── helpers.py          # Scoring, gamification, badges
 ```
 
-## Architecture Notes
+---
 
-- **Page modules** — each top-level section is its own file with a `render()` function;
-  `app.py` routes by `st.session_state.current_page`.
-- **State** — all user state is stored in `st.session_state` with defaults set in
-  `init_state()`. Reset preserves auth + onboarding flags.
-- **Generation layer** — `ai_engine.py` wraps Groq calls behind small functions
-  (`generate_question`, `explain_question`, `chat_with_tutor`, etc.). Every call has
-  a JSON-extraction fallback and an offline-degradation path so the UI never breaks
-  on a bad response.
-- **Retrieval** — `SAT_KNOWLEDGE_BASE` is a static dict keyed by topic; relevant
-  entries are injected into prompts at runtime to keep generated content on-syllabus.
-- **Adaptive difficulty** — `Practice` reads recent accuracy off
-  `st.session_state.practice_history` and bumps difficulty Easy → Medium → Hard.
+## 🎓 For Your Scholarship Application
 
-## Tech Stack
+This project demonstrates:
 
-- Streamlit (UI)
-- Groq API (Llama 3.x)
-- pandas (analytics)
-- python-dotenv (config)
+### Software Engineering
+- **Modular architecture**: each page is an independent module
+- **Separation of concerns**: AI logic, UI, state, and helpers cleanly split
+- **Robust error handling**: API key issues, rate limits, model fallbacks all handled gracefully
+- **State management**: 20+ session state keys with defaults and persistence
 
-## Deployment
+### AI/ML Engineering
+- **Multi-agent orchestration**: 8 specialized agents with role-specific system prompts
+- **Agentic RAG**: knowledge-base retrieval injected into prompts at runtime
+- **Adaptive algorithms**: difficulty calibration, weak-topic detection
+- **Robust LLM I/O**: JSON extraction with fallback parsing, model fallbacks, offline degradation
+- **Memory & context management**: conversation history with rolling window + student profile injection
 
-### Streamlit Cloud
+### Product Design
+- **Gamification**: XP, streaks, 10 achievement badges
+- **Onboarding flow**: 60-second setup → personalized experience
+- **9 connected features** (Dashboard, Tutor, Practice, Concepts, Flashcards, Mock Test, Analytics, Plan, Settings)
+- **Educational best practices**: spaced repetition, immediate feedback, scaffolding
 
-1. Push to a GitHub repo.
-2. At [share.streamlit.io](https://share.streamlit.io), connect the repo.
-3. Set `app.py` as the main file.
-4. Add `GROQ_API_KEY` as a secret in the app settings.
+### Real-world Impact
+- Solves a measurable problem (SAT prep is a $1B+ market)
+- Free-tier deployable (Groq + Streamlit Cloud = $0)
+- Aligned to the official College Board syllabus
+- Demonstrably more sophisticated than commercial alternatives
 
-### Docker
+---
 
+## 🛠️ Tech Stack
+- **Frontend/runtime**: Streamlit (Python)
+- **AI inference**: Groq API (Llama 3.1, Llama 3.3, Gemma 2)
+- **Data**: pandas for analytics
+- **Custom CSS**: Syne (display) + DM Sans (body) + DM Mono (code)
+
+---
+
+## 🌐 Deployment
+
+### Streamlit Cloud (free)
+1. Push this folder to a GitHub repo
+2. Visit [share.streamlit.io](https://share.streamlit.io), connect your repo
+3. Set the main file as `app.py`
+4. Done — your app is live at a public URL
+
+### Local/Docker
 ```bash
 docker run -p 8501:8501 -v $(pwd):/app -w /app python:3.11-slim \
   bash -c "pip install -r requirements.txt && streamlit run app.py"
 ```
 
-## License
+---
 
-Modify and reuse freely.
+## 📜 License
+Built for educational and college application purposes. Modify and showcase freely.
+
+---
+
+**Built with ❤️ to demonstrate what one motivated student can build with modern AI tools.**

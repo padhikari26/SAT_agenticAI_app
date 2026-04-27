@@ -410,20 +410,20 @@ def call_groq(messages: list, system: str = "",
 
 
 def _offline_response(messages: list) -> str:
-    """Helpful offline message."""
+    """Helpful offline message — never lies about being an AI."""
     last = messages[-1]["content"].lower() if messages else ""
     if any(w in last for w in ("explain", "what is", "how does", "why")):
-        return ("**Offline mode** — add your Groq API key in Settings to enable generated explanations. "
-                "In the meantime, the **Concepts** page has curated material on every SAT topic.")
+        return ("📚 **Offline mode** — add your free Groq API key in Settings to unlock AI explanations. "
+                "In the meantime, the **Concepts** page has expert-curated material on every SAT topic.")
     if "hint" in last:
-        return "**Hint:** Break the problem into smaller steps. List what you know and what you need."
-    return "Configure the Groq API key in Settings to enable generation features (free tier at console.groq.com)."
+        return "💡 **Hint**: Break the problem into smaller steps. List what you know and what you need."
+    return "🔌 Connect Groq AI in Settings to get personalized responses (free at console.groq.com)."
 
 
 # ╔══════════════════════════════════════════════════════════════╗
 # ║    System Prompts (Multi-Agent Personalities)                ║
 # ╚══════════════════════════════════════════════════════════════╝
-TUTOR_SYSTEM = """You are an expert tutor for the digital SAT (College Board, 2024+ format).
+TUTOR_SYSTEM = """You are SAT Genius, an expert tutor for the digital SAT (College Board, 2024+ format).
 
 THE DIGITAL SAT FORMAT YOU TEACH:
 • Reading & Writing: 54 questions, 64 minutes, 2 modules of 27 each (adaptive)
@@ -436,8 +436,8 @@ YOUR TEACHING STYLE:
 • Highlight common traps and how to avoid them
 • Use markdown: **bold** for key terms, `code` for formulas, bullet lists for steps
 • Always end with a "Key Takeaway" line
-• Be clear and direct, never condescending
-• If a student is stuck, give a hint before the answer
+• Be warm, encouraging, never condescending
+• If a student is stuck, give a *hint* before the answer
 
 You may be given context from a knowledge base — when present, ground your answer in it."""
 
@@ -446,11 +446,11 @@ that match the official digital SAT (2024+) style and difficulty calibration. Al
 
 ANALYST_SYSTEM = """You are an SAT performance analyst. Analyze student data and produce specific,
 actionable insights. Quantify score-impact estimates whenever possible. Use bullet structure and
-concrete examples. Be honest and direct."""
+concrete examples. Be honest but encouraging."""
 
 PLANNER_SYSTEM = """You are an SAT study plan strategist. Create realistic, personalized weekly plans
 tied to the student's score gap, weak areas, and time budget. Be specific about activities and
-durations. Reference app features (Practice, Concepts, Flashcards, Mock Test, Tutor) by name."""
+durations. Reference SAT Genius features (Practice, Concepts, Flashcards, Mock Test) by name."""
 
 
 # ╔══════════════════════════════════════════════════════════════╗

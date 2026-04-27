@@ -1,13 +1,14 @@
-"""ai_tutor.py — chat-based tutor"""
+"""pages/ai_tutor.py — Agentic chat tutor with RAG-grounded answers"""
 import streamlit as st
 from helpers import section_header, get_accuracy
 from ai_engine import chat_with_tutor
 
 
 def render():
-    section_header("Tutor",
-                   "Conversational help, grounded in the digital SAT syllabus.")
+    section_header("🧠 AI Tutor",
+                   "Multi-turn agentic conversations grounded in the digital SAT syllabus.")
 
+    # ── Quick prompt suggestions ──
     suggestions = [
         "Explain the quadratic formula with an example",
         "How do I tackle reading comprehension faster?",
@@ -18,53 +19,53 @@ def render():
     ]
 
     if not st.session_state.chat_history:
-        st.markdown('<div class="panel-accent">', unsafe_allow_html=True)
-        st.markdown(f"**Hi, {st.session_state.user_name or 'there'}.**")
-        weak = ", ".join(f"`{w}`" for w in st.session_state.weak_topics) or "_still mapping your weak areas_"
+        st.markdown('<div class="genius-card genius-card-accent">', unsafe_allow_html=True)
+        st.markdown("### 👋 Hi! I'm your AI tutor.")
         st.markdown(
-            f"Ask about any digital SAT concept, problem, or strategy. "
-            f"I'll keep your weak topics ({weak}) in mind.\n\n"
-            f"**Try one of these to start:**"
+            f"I know the **digital SAT** inside-out and I remember your weak areas: "
+            f"{', '.join(st.session_state.weak_topics) or '(still learning about you)'}.\n\n"
+            "Ask me to **explain a concept**, **walk through a problem**, "
+            "or **strategize** for any section. Try one of these to start:"
         )
         cols = st.columns(2)
         for i, s in enumerate(suggestions):
             with cols[i % 2]:
-                if st.button(s, key=f"sg_{i}", use_container_width=True):
+                if st.button(f"💬 {s}", key=f"sg_{i}", use_container_width=True):
                     _send_message(s)
                     st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     else:
         # Render chat history
         for msg in st.session_state.chat_history:
-            with st.chat_message(msg["role"]):
+            with st.chat_message(msg["role"], avatar="🧑‍🎓" if msg["role"] == "user" else "🤖"):
                 st.markdown(msg["content"])
 
     # ── Chat input ──
-    user_input = st.chat_input("Ask a question…")
+    user_input = st.chat_input("Ask about any SAT concept, problem, or strategy…")
     if user_input:
         _send_message(user_input)
         st.rerun()
 
-    # ── Tools ──
-    with st.expander("Tools"):
+    # ── Sidebar tools ──
+    with st.expander("🛠️ Tutor Tools"):
         c1, c2, c3 = st.columns(3)
         with c1:
-            if st.button("Clear chat", use_container_width=True):
+            if st.button("🔄 Clear chat", use_container_width=True):
                 st.session_state.chat_history = []
                 st.rerun()
         with c2:
-            if st.button("Tip on weak topic", use_container_width=True):
+            if st.button("💡 Get hint about my weak topic", use_container_width=True):
                 weak = st.session_state.weak_topics
                 topic = weak[0] if weak else "SAT strategy"
                 _send_message(f"Give me a quick teaching tip about {topic}.")
                 st.rerun()
         with c3:
-            if st.button("What should I study?", use_container_width=True):
+            if st.button("🎯 Recommend what to study now", use_container_width=True):
                 _send_message("Based on my profile, what's the single most impactful thing I should study right now?")
                 st.rerun()
 
-        st.caption(f"Messages: {len(st.session_state.chat_history)} · "
-                   f"Memory window: last 10 turns.")
+        st.caption(f"💬 Messages exchanged: {len(st.session_state.chat_history)} · "
+                   f"AI agent has memory of the last 10 turns.")
 
 
 def _send_message(text: str):
@@ -78,6 +79,6 @@ def _send_message(text: str):
         "accuracy": get_accuracy(),
     }
     st.session_state.chat_history.append({"role": "user", "content": text})
-    with st.spinner("Thinking…"):
+    with st.spinner("🤖 Thinking…"):
         reply = chat_with_tutor(text, st.session_state.chat_history[:-1], student)
     st.session_state.chat_history.append({"role": "assistant", "content": reply})
