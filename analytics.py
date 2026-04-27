@@ -1,0 +1,125 @@
+"""analytics.py — performance analytics"""
+import streamlit as st
+import pandas as pd
+from helpers import section_header, get_accuracy, predict_score, badge_html
+from ai_engine import analyze_performance, detect_weak_strong_topics
+
+
+def render():
+    section_header("Analytics",
+                   "Trends, topic accuracy, and history.")
+
+    if st.session_state.total_questions == 0:
+        st.markdown('<div class="panel">', unsafe_allow_html=True)
+        st.markdown("**No data yet**")
+        st.markdown("Solve some questions in **Practice** or take a **Mock Test** to populate analytics.")
+        if st.button("Go to Practice", type="primary"):
+            st.session_state.current_page = "Practice"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+        return
+
+    # Top metrics
+    total, potential = predict_score()
+    acc = get_accuracy()
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Current score", f"{total}", f"{total - 800:+d} from baseline")
+    c2.metric("Predicted score", f"{potential}", f"{potential - total:+d} potential")
+    c3.metric("Accuracy", f"{acc:.0f}%", f"{st.session_state.correct_answers}/{st.session_state.total_questions}")
+    c4.metric("Topics covered", f"{len(set(h.get('topic','') for h in st.session_state.practice_history))}")
+
+    # Refresh weak/strong
+    weak, strong = detect_weak_strong_topics(st.session_state.practice_history)
+    st.session_state.weak_topics = weak
+    st.session_state.strong_topics = strong
+
+    # Tabs
+    t1, t2, t3, t4 = st.tabs(["Trends", "By Topic", "History", "Insights"])
+
+    with t1:
+        st.markdown("**Score progression**")
+        history = st.session_state.practice_history
+        if len(history) >= 2:
+            df = pd.DataFrame(history)
+            df["correct_int"] = df["correct"].astype(int)
+            df["cumulative_correct"] = df["correct_int"].cumsum()
+            df["cumulative_total"] = range(1, len(df) + 1)
+            df["cumulative_accuracy"] = df["cumulative_correct"] / df["cumulative_total"] * 100
+            df["question_num"] = df["cumulative_total"]
+            chart_df = df[["question_num", "cumulative_accuracy"]].set_index("question_num")
+            chart_df.columns = ["Cumulative Accuracy %"]
+            st.line_chart(chart_df, height=320)
+        else:
+            st.info("Solve a few more questions to see trend charts.")
+
+    with t2:
+        st.markdown("**Accuracy by topic**")
+        history = st.session_state.practice_history
+        if history:
+            by_topic = {}
+            for h in history:
+                t = h.get("topic", "Unknown") or "Unknown"
+                by_topic.setdefault(t, {"correct": 0, "total": 0})
+                by_topic[t]["total"] += 1
+                if h.get("correct"):
+                    by_topic[t]["correct"] += 1
+            rows = [
+                {
+                    "Topic": t,
+                    "Solved": v["total"],
+                    "Correct": v["correct"],
+                    "Accuracy %": round(v["correct"] / v["total"] * 100, 1),
+                }
+                for t, v in by_topic.items()
+            ]
+            df = pd.DataFrame(rows).sort_values("Accuracy %", ascending=False)
+            st.dataframe(df, use_container_width=True, hide_index=True)
+
+            st.markdown("<br/>", unsafe_allow_html=True)
+            st.markdown("**Bar chart**")
+            chart_df = df.set_index("Topic")[["Accuracy %"]]
+            st.bar_chart(chart_df, height=300)
+        else:
+            st.info("No data yet.")
+
+    with t3:
+        st.markdown("**Recent question history**")
+        history = st.session_state.practice_history[-30:]
+        if history:
+            df = pd.DataFrame(history)
+            df["Result"] = df["correct"].apply(lambda x: "✓" if x else "✗")
+            display_df = df[["Result", "topic", "difficulty"]].rename(
+                columns={"topic": "Topic", "difficulty": "Difficulty"}
+            )
+            st.dataframe(display_df, use_container_width=True, hide_index=True)
+
+    with t4:
+        st.markdown("**Performance Analysis**")
+        st.caption("A written breakdown of weak areas, score-impact estimates, and recommended next steps.")
+
+        if "ai_analysis" not in st.session_state:
+            st.session_state.ai_analysis = None
+
+        if st.button("Generate analysis", type="primary"):
+            with st.spinner("Analyzing performance data…"):
+                st.session_state.ai_analysis = analyze_performance(
+                    st.session_state.practice_history, st.session_state.weak_topics
+                )
+
+        if st.session_state.ai_analysis:
+            st.markdown('<div class="panel-accent">', unsafe_allow_html=True)
+            st.markdown(st.session_state.ai_analysis)
+            st.markdown('</div>', unsafe_allow_html=True)
+
+            if st.button("Regenerate", key="regen_analysis"):
+                st.session_state.ai_analysis = None
+                st.rerun()
+
+    # Strength / weakness chips
+    st.markdown("<br/>", unsafe_allow_html=True)
+    if strong:
+        st.markdown("### Strengths")
+        st.markdown(" ".join(badge_html(t, "green") for t in strong), unsafe_allow_html=True)
+    if weak:
+        st.markdown("### Topics to focus on")
+        st.markdown(" ".join(badge_html(t, "rose") for t in weak), unsafe_allow_html=True)
