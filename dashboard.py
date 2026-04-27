@@ -5,6 +5,20 @@ from ai_engine import call_groq, TUTOR_SYSTEM
 
 
 def render():
+       # ── FIX: prevent Streamlit header overlap ──
+    st.markdown("""
+    <style>
+        /* Push entire app content below Streamlit top bar */
+        .block-container {
+            padding-top: 5rem !important;
+        }
+
+        /* Optional: remove default Streamlit header spacing conflicts */
+        header[data-testid="stHeader"] {
+            background: transparent;
+        }
+    </style>
+    """, unsafe_allow_html=True)
     user = st.session_state.user_name or "Student"
     section_header(f"👋 Welcome back, {user}",
                    "Your AI-powered SAT command center.")
@@ -27,7 +41,7 @@ def render():
 
     with left:
         st.markdown('<div class="genius-card genius-card-accent">', unsafe_allow_html=True)
-        st.markdown("### 🤖 Your Daily AI Insight")
+        st.markdown("### 🧠 Daily Insight")
         if "daily_insight" not in st.session_state:
             st.session_state.daily_insight = None
         if st.session_state.daily_insight is None:
@@ -57,7 +71,7 @@ def render():
 
     with right:
         st.markdown('<div class="genius-card">', unsafe_allow_html=True)
-        st.markdown("### ⚡ Quick Actions")
+        st.markdown("### 🚀 Quick Actions")
         if st.button("📝 Start Practice", use_container_width=True, key="qa_practice"):
             st.session_state.current_page = "📝 Practice"
             st.rerun()
